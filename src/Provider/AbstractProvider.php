@@ -93,13 +93,17 @@ abstract class AbstractProvider implements ProviderInterface
 
         /* @var HttpClientInterface $http */
         $http = Pay::get(HttpClientInterface::class);
+
+        if (!($http instanceof ClientInterface)) {
+            throw new InvalidConfigException(InvalidConfigException::HTTP_CLIENT_CONFIG_ERROR);
+        }
         
         Logger::info('[AbstractProvider] 准备请求支付服务商 API', $rocket->toArray());
 
         Event::dispatch(new Event\ApiRequesting($rocket));
 
         try {
-            $response = $http->send($rocket->getRadar());
+            $response = $http->sendRequest($rocket->getRadar());
 
             $contents = $response->getBody()->getContents();
 
